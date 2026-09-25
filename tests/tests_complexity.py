@@ -72,6 +72,7 @@ def test_fractal_dfa_scale_invariance():
         else:
             assert np.allclose(h, reference, atol=0.05)
 
+
 # R code:
 #
 # library(TSEntropies)
