@@ -52,6 +52,26 @@ def test_complexity_sanity():
 # Comparison against R
 # =============================================================================
 
+
+def test_fractal_dfa_scale_invariance():
+    # Regression test for issue #1208: DFA's scaling exponents are invariant
+    # under constant rescaling of the signal. White noise is monofractal with
+    # h(q) = 0.5 for every q, so rescaled copies of the same noise must give
+    # the same answer regardless of the amplitude units.
+    scale = np.array([16, 24, 32, 48, 64, 96, 128, 192, 256])
+    q = np.array([-5.0, -3.0, -1.0, 1.0, 3.0, 5.0])
+    signal = np.random.default_rng(0).standard_normal(20000)
+
+    reference = None
+    for multiplier in (1e0, 1e-2, 1e-4, 1e-5, 1e-10):
+        _, info = nk.fractal_dfa(signal * multiplier, scale=scale, q=q, multifractal=True, show=False)
+        h = np.asarray(info["h"], float)
+        assert np.all(np.isfinite(h))
+        if reference is None:
+            reference = h
+        else:
+            assert np.allclose(h, reference, atol=0.05)
+
 # R code:
 #
 # library(TSEntropies)
